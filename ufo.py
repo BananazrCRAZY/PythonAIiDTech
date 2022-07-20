@@ -6,7 +6,7 @@ class UFO(pygame.sprite.Sprite):
     STARTING_POSITION = (300, 90)
     SIZE = (60, 30)
     SCREEN_DIM = 600, 500
-    MOVE_DIST = 6
+    MOVE_DIST = 4
 
     # Creates a Log object
     def __init__(self, starting_position: tuple, direction: str):

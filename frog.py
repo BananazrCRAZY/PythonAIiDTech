@@ -35,7 +35,6 @@ class Frog(pygame.sprite.Sprite):
     def reset_position(self):
         self.rect.center = Frog.STARTING_POSITION
         self.lives -= 1
-        print("Lives Left: " + str(self.lives))
 
     def move_on_log(self, log: Log):
         # Log moving right

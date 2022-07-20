@@ -25,6 +25,12 @@ LIGHT_GRAY = (137, 137, 137)
 BLUE = (0, 77, 145)
 
 FONT = pygame.font.Font('resources/joystix monospace.ttf', 20)
+MENU_BIG = pygame.font.Font('resources/joystix monospace.ttf', 60)
+MENU_MED = pygame.font.Font('resources/joystix monospace.ttf', 25)
+MENU_SMALL = pygame.font.Font('resources/joystix monospace.ttf', 15)
+MENU_IMAGE = pygame.image.load('resources/menu.png')
+START_MENU = True
+END_MENU = False
 
 streets = []
 number_of_buses = 3
@@ -44,7 +50,25 @@ for _ in range(2):
 
 frog = Frog()
 
-while frog.lives > 0:
+while True:
+    while START_MENU:
+        CLOCK.tick(15)
+        SCREEN.fill(GREEN)
+
+        name = MENU_BIG.render('FROGGER', True, WHITE)
+        instructions = MENU_SMALL.render('PRESS SPACE TO START', True, WHITE)
+        SCREEN.blit(name, (130, 130))
+        SCREEN.blit(instructions, (180, 210))
+        SCREEN.blit(MENU_IMAGE, (145, 260))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    START_MENU = False
+        pygame.display.update()
+
     CLOCK.tick(FPS)
     SCREEN.fill(GRAY)
 
@@ -92,7 +116,6 @@ while frog.lives > 0:
                 ufo.move()
                 if frog.rect.colliderect(ufo.rect):
                     frog.reset_position()
-                    frog.reset_position()
 
             # Collided with River and not a Log - new
             if not frog_on_log and frog.rect.colliderect(rivers.rect):
@@ -104,13 +127,45 @@ while frog.lives > 0:
         high_score = score + current_best
     if frog.rect.top <= 39:
         frog.reset_position()
-        frog.lives += 2
+        FPS += 10
+        if frog.lives < 3:
+            frog.lives += 2
         score += 1000 + current_best
         current_best = 0
-        print("Score: " + str(score + current_best))
-        print("High Score: " + str(high_score))
-        print("Lives: " + str(frog.lives))
+
+    score_text = FONT.render("Score: " + str(score + current_best), True, WHITE)
+    high_score_text = FONT.render("High Score: " + str(high_score), True, WHITE)
+    lives_text = FONT.render("Lives: " + str(frog.lives), True, WHITE)
+
+    SCREEN.blit(score_text, (5, 0))
+    SCREEN.blit(high_score_text, (5, 20))
+    SCREEN.blit(lives_text, (5, 40))
 
     SCREEN.blit(frog.image, frog.rect)
-
     pygame.display.flip()
+
+    if frog.lives <= 0:
+        END_MENU = True
+
+    while END_MENU:
+        CLOCK.tick(15)
+        SCREEN.fill(GREEN)
+
+        thx = MENU_MED.render('Thanks for Playing!', True, WHITE)
+        scores = MENU_MED.render('Your Final Score: %d' % (score + current_best), True, WHITE)
+        instructions = MENU_SMALL.render('Press \'Space\' To Play Again', True, WHITE)
+        SCREEN.blit(thx, (85, 120))
+        SCREEN.blit(scores, (70, 180))
+        SCREEN.blit(instructions, (130, 240))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    current_best = 0
+                    score = 0
+                    frog.lives = 3
+                    FPS = 30
+                    END_MENU = False
+        pygame.display.update()
