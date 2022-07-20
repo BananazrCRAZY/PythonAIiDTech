@@ -57,7 +57,7 @@ while True:
 
         name = MENU_BIG.render('FROGGER', True, WHITE)
         instructions = MENU_SMALL.render('PRESS SPACE TO START', True, WHITE)
-        SCREEN.blit(name, (130, 130))
+        SCREEN.blit(name, (129, 130))
         SCREEN.blit(instructions, (180, 210))
         SCREEN.blit(MENU_IMAGE, (145, 260))
 
