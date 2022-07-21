@@ -4,8 +4,9 @@ class Player(pygame.sprite.Sprite):
     STARTING_POSITION = (300, 300)
     SIZE = (20, 20)
     IMAGE = pygame.image.load('resources/player.png')
-    MOVE_DIST = 10
+    MOVE_DIST = 20
     SCREEN_DIM = 600, 600
+    DEAD = False
 
     def __init__(self):
         super().__init__()
@@ -19,7 +20,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.centery -= Player.MOVE_DIST
 
     def move_down(self):
-        if self.rect.bottom <= 480:
+        if self.rect.bottom <= 580:
             self.rect.centery += Player.MOVE_DIST
 
     def move_left(self):
