@@ -1,3 +1,5 @@
+import time
+
 import pygame, sys, random
 from Bots import Bots
 from player import Player
@@ -100,8 +102,15 @@ while True:
             SCREEN.blit(ghost.image, ghost.rect)
             pygame.display.update()
 
-            # BATTLE = True
+            BATTLE = True
+            print("YOU'VE ENCOUNTERED A GHOST")
+            time.sleep(2)
             while BATTLE:
+                CLOCK.tick(FPS)
+                SCREEN.fill(BLACK)
+                pygame.display.update()
+
+                fighting_player = Bots(NAME, 10)
                 if ghost.DEAD or player.DEAD:
                     BATTLE = False
 
@@ -168,4 +177,5 @@ while True:
                 if event.key == pygame.K_SPACE:
                     GAMEOVER = False
                     WIN = False
+                    need_spawn = True
         pygame.display.update()
