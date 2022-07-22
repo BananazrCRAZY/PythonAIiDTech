@@ -37,6 +37,7 @@ DARK4 = pygame.image.load('resources/dark4.png')
 DARK5 = pygame.image.load('resources/dark5.png')
 FIGHT_MENU = pygame.image.load('resources/fightMenu.png')
 CHECK_CONSOLE = pygame.image.load('resources/checkConsole.png')
+FIGHT_PLAYER = pygame.image.load('resources/fightingPlayer.png')
 END_SCREEN = pygame.image.load('resources/endScreen.png')
 
 START_MENU = True
@@ -46,10 +47,13 @@ GAMEOVER = False
 need_spawn = True
 WIN = False
 YOUR_TURN = True
+ENE_TURN = False
+ALR_WENT = False
+HAVE_NOT_GONE = False
 SCORE = 0
 
 NAME = ""
-player = Player()
+player = Player(NAME)
 cursor = Cursor()
 
 ghosts = []
@@ -109,7 +113,7 @@ while True:
     while need_spawn:
         for num in range(0, 20):
             ghosts.append(Ghost((random.randint(0, 600), random.randint(0, 600)), random.randint(0, 1), 120,
-                                random.randint(50, 100), random.randint(8, 11), random.randint(8, 11),
+                                random.randint(50, 100), random.randint(16, 22), random.randint(8, 11),
                                 random.randint(8, 11)))
         coin = Coin((random.randint(1, 569), random.randint(1, 569)))
         need_spawn = False
@@ -126,16 +130,63 @@ while True:
             BATTLE = True
             print("YOU'VE ENCOUNTERED A GHOST")
             time.sleep(1)
-            while BATTLE:
+            while BATTLE and not ghost.DEAD:
                 CLOCK.tick(FPS)
                 fighting_player = Bots(NAME, 10)
 
                 SCREEN.fill(BLACK)
+                SCREEN.blit(FIGHT_PLAYER, (0, 0))
                 SCREEN.blit(FIGHT_MENU, (0, 0))
                 SCREEN.blit(cursor.image, cursor.rect)
                 pygame.display.flip()
 
+                if not ENE_TURN and not YOUR_TURN:
+                    if player.speed >= ghost.speed:
+                        YOUR_TURN = True
+                        ENE_TURN = False
+                        ALR_WENT = False
+                    else:
+                        YOUR_TURN = True
+                        ENE_TURN = True
+                        ALR_WENT = True
+
+                if ENE_TURN and not HAVE_NOT_GONE:
+                    act = random.randint(0, 100)
+                    if act < 5:
+                        ghost.buff_attack()
+                    elif act < 10:
+                        ghost.buff_defence()
+                    elif act < 15:
+                        ghost.buff_speed()
+                    elif act < 20:
+                        ghost.buff_affect()
+                    elif act < 25:
+                        ghost.buff_crit_chance()
+                    elif act < 30:
+                        ghost.buff_crit_mult()
+                    elif act < 35:
+                        player.nerf_attack(ghost.affect)
+                    elif act < 40:
+                        player.nerf_defence(ghost.affect)
+                    elif act < 45:
+                        player.nerf_speed(ghost.affect)
+                    elif act < 50:
+                        player.nerf_affect()
+                    elif act < 55:
+                        player.nerf_crit_chance(ghost.affect)
+                    elif act < 60:
+                        player.nerf_crit_mult()
+                    elif act < 65:
+                        ghost.heal()
+                    else:
+                        player.hp -= ghost.calc_dmg(player.defence)
+                        print("ENEMY ATTACKED\nYOUR HP: " + str(player.hp) + "\n")
+
+                    ENE_TURN = False
+                    time.sleep(1)
+
                 if YOUR_TURN:
+                    HAVE_NOT_GONE = True
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             sys.exit()
@@ -151,15 +202,15 @@ while True:
                             if event.key == pygame.K_SPACE:
                                 # attack
                                 if cursor.rect.center == (165, 415):
-                                    SCREEN.blit(CHECK_CONSOLE, (0, 0))
-                                    pygame.display.update()
-                                    input("SELECT AN ATTACK:\n")
+                                    ghost.hp -= player.calc_dmg(ghost.defence)
+                                    print("ENEMY HP: " + str(ghost.hp) + "\n")
                                     YOUR_TURN = False
+                                    HAVE_NOT_GONE = False
                                 # heal
                                 elif cursor.rect.center == (465, 415):
-                                    print("YOU HEALED")
                                     player.heal()
                                     YOUR_TURN = False
+                                    HAVE_NOT_GONE = False
                                 # stats
                                 elif cursor.rect.center == (165, 535):
                                     SCREEN.blit(CHECK_CONSOLE, (0, 0))
@@ -169,7 +220,33 @@ while True:
                                     stat = int(input("SELECT A STAT:\n1. ATTACK\n2. DEFENCE\n3. SPEED\n4. AFFECT\n"
                                                     "5. CRIT CHANCE\n6. CRIT MULTIPLIER\n"))
                                     YOUR_TURN = False
-                                    #if buff_or_nerf == 1:
+                                    HAVE_NOT_GONE = False
+                                    if buff_or_nerf == 1:
+                                        if stat == 1:
+                                            player.buff_attack()
+                                        elif stat == 2:
+                                            player.buff_defence()
+                                        elif stat == 3:
+                                            player.buff_speed()
+                                        elif stat == 4:
+                                            player.buff_affect()
+                                        elif stat == 5:
+                                            player.buff_crit_chance()
+                                        elif stat == 6:
+                                            player.buff_crit_mult()
+                                    elif buff_or_nerf == 2:
+                                        if stat == 1:
+                                            ghost.nerf_attack(player.affect)
+                                        elif stat == 2:
+                                            ghost.nerf_defence(player.affect)
+                                        elif stat == 3:
+                                            ghost.nerf_speed(player.affect)
+                                        elif stat == 4:
+                                            ghost.nerf_affect()
+                                        elif stat == 5:
+                                            ghost.nerf_crit_chance(player.affect)
+                                        elif stat == 6:
+                                            ghost.nerf_crit_mult()
                                 # info
                                 elif cursor.rect.center == (465, 535):
                                     SCREEN.blit(CHECK_CONSOLE, (0, 0))
@@ -189,12 +266,23 @@ while True:
                                               " STATS ARE BASED ON YOUR AFFECT STAT\n"
                                               "THE ONLY BUFF THAT IS NOT AFFECTED BY THE AFFECT STAT IS BUFFING"
                                               " THE AFFECT STAT\n\nPRESS ENTER IN THE CONSOLE TO CONTINUE\n")
-                                    #else:
+                                    else:
+                                        ghost.get_stats()
+                                        player.get_stats()
 
-                YOUR_TURN = True
+                    if not ALR_WENT:
+                        ENE_TURN = True
 
-                if ghost.DEAD or player.DEAD:
+                if ghost.hp <= 0:
+                    ghost.DEAD = True
+                    ghosts.remove(ghost)
                     BATTLE = False
+                    SCORE += 100
+                    player.reset_stats()
+                elif player.hp <= 0:
+                    BATTLE = False
+                    GAMEOVER = True
+                    WIN = False
 
         elif player.rect.colliderect(ghost.CIRCLE4):
             SCREEN.blit(DARK4, (0, 0))
@@ -231,6 +319,8 @@ while True:
     if player.rect.colliderect(coin.rect):
         GAMEOVER = True
         WIN = True
+        SCORE += 500
+        SCORE += player.hp * 5
 
     while GAMEOVER:
         CLOCK.tick(15)
@@ -241,10 +331,13 @@ while True:
             SCREEN.blit(name, (129, 80))
             SCREEN.blit(END_SCREEN, (170, 220))
         else:
+            SCORE -= 200
             name = MENU_BIG.render('YOU LOSE', True, WHITE)
             SCREEN.blit(name, (110, 80))
             SCREEN.blit(MENU_IMAGE, (145, 220))
 
+        final_score = MENU_MED.render('SCORE: ' + str(SCORE), True, WHITE)
+        SCREEN.blit(final_score, (175, 520))
         instructions = MENU_SMALL.render('PRESS SPACE PLAY AGAIN', True, WHITE)
         SCREEN.blit(instructions, (180, 160))
 
@@ -256,4 +349,6 @@ while True:
                     GAMEOVER = False
                     WIN = False
                     need_spawn = True
+                    player.reset_stats()
+                    player.hp = 100.0
         pygame.display.update()

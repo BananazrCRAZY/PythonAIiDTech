@@ -2,7 +2,7 @@ import pygame
 
 class Cursor(pygame.sprite.Sprite):
     SIZE = (30, 30)
-    IMAGE = pygame.image.load('resources/treasure.png')
+    IMAGE = pygame.image.load('resources/cursor.png')
     SCREEN_DIM = 600, 600
     MOVE_DIST_X = 300
     MOVE_DIST_Y = 120
