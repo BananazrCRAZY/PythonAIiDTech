@@ -37,7 +37,7 @@ DARK4 = pygame.image.load('resources/dark4.png')
 DARK5 = pygame.image.load('resources/dark5.png')
 FIGHT_MENU = pygame.image.load('resources/fightMenu.png')
 CHECK_CONSOLE = pygame.image.load('resources/checkConsole.png')
-FIGHT_PLAYER = pygame.image.load('resources/fightingPlayer.png')
+FIGHT_PLAYER = pygame.image.load('resources/playervsghost.png')
 END_SCREEN = pygame.image.load('resources/endScreen.png')
 
 START_MENU = True
@@ -135,7 +135,7 @@ while True:
                 fighting_player = Bots(NAME, 10)
 
                 SCREEN.fill(BLACK)
-                SCREEN.blit(FIGHT_PLAYER, (0, 0))
+                SCREEN.blit(FIGHT_PLAYER, (50, 0))
                 SCREEN.blit(FIGHT_MENU, (0, 0))
                 SCREEN.blit(cursor.image, cursor.rect)
                 pygame.display.flip()
